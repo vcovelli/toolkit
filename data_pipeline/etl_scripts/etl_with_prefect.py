@@ -3,13 +3,29 @@ import pandas as pd
 import sqlalchemy
 import smtplib
 from email.message import EmailMessage
-import time
 
 @task(retries=3, retry_delay_seconds=10)
 def extract_data():
     print("Extracting data...")
     data = pd.DataFrame({'column1': [1, 2, 3], 'column2': ['A', 'B', 'C']})
     return data
+
+@task
+def validate_data(data):
+    print("Validating data...")
+
+    # Check for missing values
+    if data.isnull().values.any():
+        raise ValueError("Data contains missing values.")
+
+    # Check data types (example: column1 should be int, column2 should be string)
+    if not pd.api.types.is_integer_dtype(data['column1']):
+        raise TypeError("column1 is not of type int.")
+    if not pd.api.types.is_string_dtype(data['column2']):
+        raise TypeError("column2 is not of type string.")
+    
+    # Additional validation checks can be added as needed
+    print("Data validation passed.")
 
 @task(retries=3, retry_delay_seconds=10)
 def transform_data(data):
@@ -26,7 +42,6 @@ def load_data(data):
 
 @task
 def send_notification(status):
-    # Replace with your email details
     email_sender = 'your_email@example.com'
     email_password = 'your_email_password'
     email_receiver = 'receiver_email@example.com'
@@ -48,10 +63,11 @@ def send_notification(status):
     except Exception as e:
         print(f"Failed to send notification: {e}")
 
-@flow(name="ETL Flow with Notifications")
+@flow(name="ETL Flow with Validation and Notifications")
 def etl_flow():
     try:
         data = extract_data()
+        validate_data(data)  # Run data validation after extraction
         transformed_data = transform_data(data)
         load_data(transformed_data)
         send_notification("completed successfully")

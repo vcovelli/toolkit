@@ -16,15 +16,17 @@ def validate_data(data):
 
     # Check for missing values
     if data.isnull().values.any():
+        send_notification("Data validation failed: Missing values detected", alert_type="data_quality")
         raise ValueError("Data contains missing values.")
 
-    # Check data types (example: column1 should be int, column2 should be string)
+    # Check data types
     if not pd.api.types.is_integer_dtype(data['column1']):
+        send_notification("Data validation failed: column1 is not an integer", alert_type="data_quality")
         raise TypeError("column1 is not of type int.")
     if not pd.api.types.is_string_dtype(data['column2']):
+        send_notification("Data validation failed: column2 is not a string", alert_type="data_quality")
         raise TypeError("column2 is not of type string.")
     
-    # Additional validation checks can be added as needed
     print("Data validation passed.")
 
 @task(retries=3, retry_delay_seconds=10)
@@ -41,13 +43,13 @@ def load_data(data):
     data.to_sql('example_table', con=engine, if_exists='replace', index=False)
 
 @task
-def send_notification(status):
+def send_notification(message, alert_type="general"):
     email_sender = 'your_email@example.com'
     email_password = 'your_email_password'
     email_receiver = 'receiver_email@example.com'
 
-    subject = f"ETL Flow {status}"
-    body = f"The ETL flow has {status}."
+    subject = f"ETL Flow Alert: {alert_type.capitalize()}"
+    body = f"{message}"
 
     msg = EmailMessage()
     msg.set_content(body)
@@ -59,7 +61,7 @@ def send_notification(status):
         with smtplib.SMTP_SSL('smtp.example.com', 465) as smtp:
             smtp.login(email_sender, email_password)
             smtp.send_message(msg)
-        print(f"Notification sent: ETL Flow {status}")
+        print(f"Notification sent: {message}")
     except Exception as e:
         print(f"Failed to send notification: {e}")
 
@@ -70,9 +72,9 @@ def etl_flow():
         validate_data(data)  # Run data validation after extraction
         transformed_data = transform_data(data)
         load_data(transformed_data)
-        send_notification("completed successfully")
+        send_notification("ETL flow completed successfully", alert_type="success")
     except Exception as e:
-        send_notification("failed")
+        send_notification(f"ETL flow failed: {e}", alert_type="failure")
         raise e  # Re-raise the exception to ensure the flow fails as expected
 
 if __name__ == "__main__":

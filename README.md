@@ -38,3 +38,14 @@ The toolkit includes a Kafka lag monitoring script (`monitor_kafka_lag.py`) in t
   ```bash
   python3 scripts/monitoring/monitor_kafka_lag.py
 
+### Pipeline Deployment
+
+The `docker-compose.yml` file in the `infrastructure` directory sets up a local environment for the ETL pipeline, including PostgreSQL, Kafka, and Prefect services.
+
+#### Steps to Deploy Locally
+
+1. **Start Services**:
+   ```bash
+   cd infrastructure
+   docker-compose up -d
+

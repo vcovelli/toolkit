@@ -49,3 +49,14 @@ The `docker-compose.yml` file in the `infrastructure` directory sets up a local 
    cd infrastructure
    docker-compose up -d
 
+### Monitoring Stack with Prometheus and Grafana
+
+The Docker Compose setup includes Prometheus and Grafana for monitoring metrics from Kafka, Prefect, and other services.
+
+#### Steps to Start the Monitoring Stack
+
+1. **Start the Services**:
+   ```bash
+   cd infrastructure
+   docker-compose up -d
+

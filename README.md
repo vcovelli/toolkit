@@ -25,3 +25,16 @@ Example Connection String:
 ```python
 connection_string = "postgresql://your_username:your_password@localhost:5432/your_database"
 
+### Kafka Monitoring
+
+The toolkit includes a Kafka lag monitoring script (`monitor_kafka_lag.py`) in the `scripts/monitoring` folder. This script calculates and displays the lag for each Kafka partition and consumer group.
+
+- **Configuration**: Update the following placeholders in the script:
+  - `KAFKA_BROKER_URL`: The URL of your Kafka broker (e.g., `localhost:9092`).
+  - `TOPIC_NAME`: The Kafka topic to monitor.
+  - `CONSUMER_GROUP`: The consumer group to monitor.
+
+- **Run the Script**:
+  ```bash
+  python3 scripts/monitoring/monitor_kafka_lag.py
+
